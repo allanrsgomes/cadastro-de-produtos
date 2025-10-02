@@ -1,16 +1,48 @@
-<div class="w-full flex justify-between items-center p-3 border-b border-gray-200 pb-2">
-  <img class="w-9 h-9" src="logo.svg" />
-  <div class="flex items-center p-2 rounded-lg bg-[#F5EAEA] cursor-pointer active:translate-y-2 duration-200
-    ease-in-out transition" routerLink="/products">
-    <img class="mr-2 w-4 h-4" src="package.svg" />
-    <span class="text-[#F24D0D] text-sm font-medium">Produtos</span>
-  </div>
+<div class="w-full flex justify-between items-center p-3 md:p-4 border-b border-gray-200 bg-white sticky top-0 z-50">
+
+  <!-- Logo -->
   <div class="flex items-center">
-    <div class="flex items-center p-2 rounded-lg bg-[#F24D0D] cursor-pointer mr-3 active:translate-y-2 duration-200
-    ease-in-out transition" routerLink="/new-product">
-      <img class="mr-2 w-4 h-4" src="plus-sign.svg" />
+    <img class="w-8 h-8 md:w-9 md:h-9" src="logo.svg" alt="Logo" />
+    <span class="hidden sm:inline ml-2 font-semibold text-gray-700">Cadastro de produtos</span>
+  </div>
+
+  <!-- Menu Desktop/Tablet -->
+  <div class="hidden md:flex items-center gap-3">
+    <!-- Botão Produtos -->
+    <div
+      class="flex items-center p-2 px-3 rounded-lg bg-[#F5EAEA] cursor-pointer hover:bg-[#f0dfdf] active:translate-y-1 duration-200 ease-in-out transition"
+      routerLink="/products">
+      <img class="mr-2 w-4 h-4" src="package.svg" alt="Produtos" />
+      <span class="text-[#F24D0D] text-sm font-medium">Produtos</span>
+    </div>
+
+    <!-- Botão Novo Produto -->
+    <div
+      class="flex items-center p-2 px-3 rounded-lg bg-[#F24D0D] cursor-pointer hover:bg-[#d64309] active:translate-y-1 duration-200 ease-in-out transition"
+      routerLink="/new-product">
+      <img class="mr-2 w-4 h-4" src="plus-sign.svg" alt="Novo" />
       <span class="text-white text-sm">Novo produto</span>
     </div>
-    <img src="user-avatar.svg" />
+
+    <!-- Avatar -->
+    <img class="w-9 h-9 rounded-full" src="user-avatar.svg" alt="Avatar" />
+  </div>
+
+  <!-- Menu Mobile (Ícones) -->
+  <div class="flex md:hidden items-center gap-2">
+    <!-- Botão Produtos Mobile -->
+    <div class="flex items-center justify-center p-2 rounded-lg bg-[#F5EAEA] cursor-pointer active:scale-95 transition"
+      routerLink="/products">
+      <img class="w-5 h-5" src="package.svg" alt="Produtos" />
+    </div>
+
+    <!-- Botão Novo Produto Mobile -->
+    <div class="flex items-center justify-center p-2 rounded-lg bg-[#F24D0D] cursor-pointer active:scale-95 transition"
+      routerLink="/new-product">
+      <img class="w-5 h-5" src="plus-sign.svg" alt="Novo" />
+    </div>
+
+    <!-- Avatar Mobile -->
+    <img class="w-8 h-8 rounded-full" src="user-avatar.svg" alt="Avatar" />
   </div>
 </div>
