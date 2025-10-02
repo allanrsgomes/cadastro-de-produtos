@@ -1,22 +1,64 @@
-import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { IAuthSuccessResponse } from '../interfaces/auth-success-response';
-import { Observable } from 'rxjs';
-import { ILoginSuccessResponse } from '../interfaces/login-success-response';
+import { Auth, signInWithEmailAndPassword, signOut, User, onAuthStateChanged } from '@angular/fire/auth';
+import { from, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private readonly _httpClient = inject(HttpClient);
+  private readonly auth = inject(Auth);
 
-  validateUser(): Observable<IAuthSuccessResponse> {
-    return this._httpClient.get<IAuthSuccessResponse>('http://localhost:3000/api/protected');
+  login(email: string, password: string): Observable<any> {
+    return from(signInWithEmailAndPassword(this.auth, email, password)).pipe(
+      map((userCredential) => {
+        return {
+          message: 'Login realizado com sucesso',
+          data: {
+            token: userCredential.user.uid,
+            user: {
+              id: userCredential.user.uid,
+              email: userCredential.user.email
+            }
+          }
+        };
+      })
+    );
   }
 
-  login(email: string, password: string): Observable<ILoginSuccessResponse> {
-    const body = { email, password };
+  logout(): Observable<void> {
+    return from(signOut(this.auth));
+  }
 
-    return this._httpClient.post<ILoginSuccessResponse>('http://localhost:3000/api/users/login', body);
+  getCurrentUser(): User | null {
+    return this.auth.currentUser;
+  }
+
+  validateUser(): Observable<any> {
+    return new Observable((observer) => {
+      const unsubscribe = onAuthStateChanged(this.auth,
+        (user) => {
+          if (user) {
+            observer.next({
+              message: 'Usuário autenticado',
+              user: {
+                userId: user.uid,
+                email: user.email,
+                iat: 0,
+                exp: 0
+              }
+            });
+            observer.complete();
+          } else {
+            observer.error({ message: 'Usuário não autenticado' });
+          }
+          unsubscribe();
+        },
+        (error) => {
+          observer.error(error);
+          unsubscribe();
+        }
+      );
+    });
   }
 }

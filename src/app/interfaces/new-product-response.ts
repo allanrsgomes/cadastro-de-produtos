@@ -1,7 +1,7 @@
 export interface INewProductResponse {
   message: string;
   data: {
-    id: number;
+    id: string;
     title: string;
     price: number;
     description: string;
