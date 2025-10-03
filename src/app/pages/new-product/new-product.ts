@@ -4,6 +4,7 @@ import { ProductsService } from '../../services/products';
 import { StorageService } from '../../services/storage';
 import { INewProductRequest } from '../../interfaces/new-product-request';
 import { switchMap, take } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-new-product',
@@ -26,6 +27,7 @@ export class NewProduct {
 
   private readonly _productsService = inject(ProductsService);
   private readonly _storageService = inject(StorageService);
+  private readonly _router = inject(Router);
 
   saveProduct() {
     if (this.productForm.invalid || !this.selectedFile) return;
@@ -55,6 +57,7 @@ export class NewProduct {
           this.successMessage = response.message;
           this.isLoading = false;
           this.resetForm();
+          this._router.navigate(['/products']);
         },
         error: (error) => {
           console.error('Erro ao salvar produto:', error);
@@ -82,6 +85,7 @@ export class NewProduct {
         this.successMessage = response.message;
         this.isLoading = false;
         this.resetForm();
+        this._router.navigate(['/products']);
       },
       error: (error) => {
         console.error('Erro ao salvar produto:', error);
@@ -111,6 +115,10 @@ export class NewProduct {
     };
 
     reader.readAsDataURL(file);
+  }
+
+  cancel() {
+    this._router.navigate(['/products']);
   }
 
   resetForm() {
