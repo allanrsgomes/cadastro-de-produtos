@@ -1,4 +1,5 @@
-<div class="w-full flex justify-between items-center p-3 md:p-4 border-b border-primary bg-primary sticky top-0 z-50 transition-colors">
+<div
+  class="w-full flex justify-between items-center p-3 md:p-4 border-b border-primary bg-primary sticky top-0 z-50 transition-colors">
 
   <!-- Logo -->
   <div class="flex items-center">
@@ -11,8 +12,7 @@
     <!-- Botão Produtos -->
     <div
       class="flex items-center p-2 px-3 rounded-lg bg-tertiary cursor-pointer hover:opacity-80 active:translate-y-1 duration-200 ease-in-out transition"
-      routerLink="/products"
-    >
+      routerLink="/products">
       <img class="mr-2 w-4 h-4" src="package.svg" alt="Produtos" />
       <span class="text-[#F24D0D] text-sm font-medium">Produtos</span>
     </div>
@@ -20,8 +20,7 @@
     <!-- Botão Novo Produto -->
     <div
       class="btn-primary flex items-center p-2 px-3 rounded-lg cursor-pointer active:translate-y-1 duration-200 ease-in-out transition"
-      routerLink="/new-product"
-    >
+      routerLink="/new-product">
       <img class="mr-2 w-4 h-4" src="plus-sign.svg" alt="Novo" />
       <span class="text-white text-sm">Novo produto</span>
     </div>
@@ -29,32 +28,68 @@
     <!-- Toggle Dark Mode -->
     <app-theme-toggle />
 
-    <!-- Avatar -->
-    <img class="w-9 h-9 rounded-full" src="user-avatar.svg" alt="Avatar" />
+    <!-- Avatar com Menu -->
+    <div class="relative">
+      <img class="w-9 h-9 rounded-full cursor-pointer hover:opacity-80 transition-opacity" src="user-avatar.svg"
+        alt="Avatar" (click)="toggleUserMenu()" />
+
+      <!-- Dropdown Menu Desktop -->
+      @if(isUserMenuOpen()) {
+      <div class="absolute right-0 mt-2 w-48 card-themed rounded-lg shadow-lg py-2 z-50">
+        <button
+          class="w-full text-left px-4 py-2 text-sm text-secondary hover:bg-tertiary transition-colors flex items-center gap-2"
+          (click)="logout()">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Sair
+        </button>
+      </div>
+      }
+    </div>
   </div>
 
   <!-- Menu Mobile (Ícones) -->
   <div class="flex md:hidden items-center gap-2">
     <!-- Botão Produtos Mobile -->
-    <div
-      class="flex items-center justify-center p-2 rounded-lg bg-tertiary cursor-pointer active:scale-95 transition"
-      routerLink="/products"
-    >
+    <div class="flex items-center justify-center p-2 rounded-lg bg-tertiary cursor-pointer active:scale-95 transition"
+      routerLink="/products">
       <img class="w-5 h-5" src="package.svg" alt="Produtos" />
     </div>
 
     <!-- Botão Novo Produto Mobile -->
-    <div
-      class="btn-primary flex items-center justify-center p-2 rounded-lg cursor-pointer active:scale-95 transition"
-      routerLink="/new-product"
-    >
+    <div class="btn-primary flex items-center justify-center p-2 rounded-lg cursor-pointer active:scale-95 transition"
+      routerLink="/new-product">
       <img class="w-5 h-5" src="plus-sign.svg" alt="Novo" />
     </div>
 
     <!-- Toggle Dark Mode Mobile -->
     <app-theme-toggle />
 
-    <!-- Avatar Mobile -->
-    <img class="w-8 h-8 rounded-full" src="user-avatar.svg" alt="Avatar" />
+    <!-- Avatar Mobile com Menu -->
+    <div class="relative">
+      <img class="w-8 h-8 rounded-full cursor-pointer" src="user-avatar.svg" alt="Avatar" (click)="toggleUserMenu()" />
+
+      <!-- Dropdown Menu Mobile -->
+      @if(isUserMenuOpen()) {
+      <div class="absolute right-0 mt-2 w-40 card-themed rounded-lg shadow-lg py-2 z-50">
+        <button
+          class="w-full text-left px-4 py-2 text-sm text-secondary hover:bg-tertiary transition-colors flex items-center gap-2"
+          (click)="logout()">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Sair
+        </button>
+      </div>
+      }
+    </div>
   </div>
 </div>
+
+<!-- Overlay para fechar menu ao clicar fora -->
+@if(isUserMenuOpen()) {
+<div class="fixed inset-0 z-40" (click)="closeUserMenu()"></div>
+}
