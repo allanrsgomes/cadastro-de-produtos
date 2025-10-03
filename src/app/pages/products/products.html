@@ -1,25 +1,25 @@
-<div class="w-full py-4 md:py-7 px-4 md:px-14 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+<div class="w-full py-4 md:py-7 px-4 md:px-14 min-h-screen transition-colors">
   <div class="w-full flex flex-col gap-4 md:gap-5">
 
     <!-- Cabeçalho -->
     <div class="mb-2">
-      <h2 class="font-bold text-xl md:text-2xl text-gray-900 dark:text-white">Seus produtos</h2>
-      <h4 class="font-light text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-1">Acesse e gerencie a sua lista de produtos à venda</h4>
+      <h2 class="font-bold text-xl md:text-2xl text-primary">Seus produtos</h2>
+      <h4 class="font-light text-xs md:text-sm text-tertiary mt-1">Acesse e gerencie a sua lista de produtos à venda</h4>
     </div>
 
     <div class="w-full flex flex-col lg:flex-row gap-4 items-start">
 
       <!-- Filtros -->
-      <div class="w-full lg:w-64 bg-white dark:bg-gray-800 rounded-2xl p-6 md:p-9 shadow-sm lg:sticky lg:top-20 transition-colors border border-gray-200 dark:border-gray-700">
-        <h3 class="text-gray-600 dark:text-gray-300 font-bold mb-5 text-base md:text-lg">Filtrar</h3>
+      <div class="w-full lg:w-64 card-themed rounded-2xl p-6 md:p-9 lg:sticky lg:top-20 transition-all">
+        <h3 class="text-secondary font-bold mb-5 text-base md:text-lg">Filtrar</h3>
 
         <div class="flex flex-col gap-6 md:gap-9" [formGroup]="filterForm">
 
           <!-- Busca -->
-          <div class="flex border-b border-gray-300 dark:border-gray-600 pb-2">
-            <img class="mr-2 opacity-85 dark:opacity-70 w-5 h-5" src="search.svg" alt="Buscar" />
+          <div class="flex border-b border-secondary pb-2">
+            <img class="mr-2 opacity-85 w-5 h-5" src="search.svg" alt="Buscar" />
             <input
-              class="text-gray-700 dark:text-gray-200 dark:bg-gray-800 text-sm focus:outline-none w-full placeholder-gray-400 dark:placeholder-gray-500"
+              class="input-themed text-sm focus:outline-none w-full border-0"
               type="text"
               placeholder="Pesquisar"
               formControlName="title"
@@ -28,7 +28,7 @@
 
           <!-- Status -->
           <select
-            class="w-full bg-white dark:bg-gray-800 border-b border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 py-2 text-sm focus:outline-none cursor-pointer"
+            class="w-full input-themed border-b border-secondary py-2 text-sm focus:outline-none cursor-pointer"
             formControlName="status"
           >
             <option value="" disabled selected hidden>Status</option>
@@ -40,7 +40,7 @@
           <!-- Botões de Filtro -->
           <div class="flex flex-col gap-2">
             <button
-              class="w-full p-3 rounded-lg bg-[#F24D0D] text-white text-sm font-medium cursor-pointer hover:bg-[#d64309] active:translate-y-1 duration-200 ease-in-out transition"
+              class="btn-primary w-full p-3 rounded-lg text-white text-sm font-medium cursor-pointer active:translate-y-1 duration-200 ease-in-out transition"
               (click)="filterProducts()"
             >
               Aplicar filtro
@@ -61,7 +61,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
 
           @for(product of filteredProducts; track product.id) {
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-2 flex flex-col cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-all duration-200 border border-transparent dark:border-gray-700">
+            <div class="card-themed rounded-2xl p-2 flex flex-col cursor-pointer transition-all duration-200">
 
               <!-- Imagem do Produto -->
               <div class="h-40 sm:h-48 relative rounded-xl overflow-hidden">
@@ -88,31 +88,31 @@
 
               <!-- Informações do Produto -->
               <div class="flex justify-between items-start p-3 gap-2">
-                <h3 class="font-bold text-gray-700 dark:text-gray-200 text-sm md:text-base line-clamp-1">{{ product.title }}</h3>
-                <h3 class="font-bold text-gray-900 dark:text-white text-sm md:text-base whitespace-nowrap">
+                <h3 class="font-bold text-secondary text-sm md:text-base line-clamp-1">{{ product.title }}</h3>
+                <h3 class="font-bold text-primary text-sm md:text-base whitespace-nowrap">
                   <span class="text-xs font-medium">R$</span> {{ product.price }}
                 </h3>
               </div>
 
               <!-- Descrição -->
               <div class="px-3 pb-3">
-                <p class="text-gray-500 dark:text-gray-400 text-xs md:text-sm line-clamp-2">{{ product.description }}</p>
+                <p class="text-tertiary text-xs md:text-sm line-clamp-2">{{ product.description }}</p>
               </div>
             </div>
           }
 
           @empty {
-            <div class="col-span-full bg-white dark:bg-gray-800 rounded-2xl p-8 md:p-12 text-center border border-gray-200 dark:border-gray-700 transition-colors">
+            <div class="col-span-full card-themed rounded-2xl p-8 md:p-12 text-center transition-colors">
               <div class="flex flex-col items-center gap-3">
-                <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-tertiary flex items-center justify-center">
                   <img class="w-8 h-8 md:w-10 md:h-10 opacity-50" src="package.svg" alt="Sem produtos" />
                 </div>
                 <div>
-                  <p class="font-bold text-gray-700 dark:text-gray-200 text-base md:text-lg">Nenhum item encontrado</p>
-                  <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">Cadastre seu primeiro produto!</p>
+                  <p class="font-bold text-primary text-base md:text-lg">Nenhum item encontrado</p>
+                  <p class="text-tertiary text-sm mt-1">Cadastre seu primeiro produto!</p>
                 </div>
                 <button
-                  class="mt-4 px-6 py-3 bg-[#F24D0D] text-white rounded-lg hover:bg-[#d64309] transition"
+                  class="btn-primary mt-4 px-6 py-3 rounded-lg transition"
                   routerLink="/new-product"
                 >
                   Cadastrar produto

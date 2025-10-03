@@ -1,79 +1,71 @@
-<div class="flex flex-col lg:flex-row p-4 lg:p-4 w-full justify-between min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors" [formGroup]="userForm">
+<div class="flex flex-col lg:flex-row p-4 lg:p-4 w-full justify-between min-h-screen transition-colors"
+  [formGroup]="userForm">
 
   <!-- Logo e Imagem - Oculta em mobile -->
   <div class="hidden lg:flex p-6 flex-col items-center justify-center lg:w-1/2">
     <div class="flex items-center mb-8">
       <img class="w-16 h-16 md:w-24 md:h-24 mr-4" src="logo.svg" alt="Logo" />
       <div>
-        <h2 class="font-bold text-xl md:text-2xl text-gray-900 dark:text-white">Marketplace</h2>
-        <h4 class="text-sm md:text-base text-gray-600 dark:text-gray-400">Painel de Vendedor</h4>
+        <h2 class="font-bold text-xl md:text-2xl text-primary">Marketplace</h2>
+        <h4 class="text-sm md:text-base text-tertiary">Painel de Vendedor</h4>
       </div>
     </div>
     <img class="max-w-full h-auto" src="login-background.svg" alt="Background" />
   </div>
 
   <!-- Formulário -->
-  <div class="flex flex-col justify-between gap-6 md:gap-8 p-6 md:p-8 w-full lg:w-1/2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg transition-colors">
+  <div
+    class="flex flex-col justify-between gap-6 md:gap-8 p-6 md:p-8 w-full lg:w-1/2 bg-primary rounded-2xl shadow-lg transition-colors">
 
     <!-- Logo Mobile - Visível apenas em mobile -->
     <div class="flex lg:hidden items-center justify-center mb-4">
       <img class="w-12 h-12 mr-3" src="logo.svg" alt="Logo" />
       <div>
-        <h2 class="font-bold text-lg text-gray-900 dark:text-white">Marketplace</h2>
-        <h4 class="text-xs text-gray-600 dark:text-gray-400">Painel de Vendedor</h4>
+        <h2 class="font-bold text-lg text-primary">Marketplace</h2>
+        <h4 class="text-xs text-tertiary">Painel de Vendedor</h4>
       </div>
     </div>
 
     <div>
-      <h2 class="font-bold text-xl md:text-2xl text-gray-900 dark:text-white">Acesse sua conta</h2>
-      <p class="font-light text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-1">Informe seu e-mail e senha para entrar</p>
+      <h2 class="font-bold text-xl md:text-2xl text-primary">Acesse sua conta</h2>
+      <p class="font-light text-xs md:text-sm text-tertiary mt-1">Informe seu e-mail e senha para entrar</p>
     </div>
 
     <div class="flex flex-col gap-8 md:gap-10">
       <!-- Campo E-mail -->
-      <div class="flex flex-col gap-2 border-b border-gray-300 dark:border-gray-600 pb-2">
-        <span class="text-gray-600 dark:text-gray-400 text-xs">E-MAIL</span>
+      <div class="flex flex-col gap-2 border-b border-secondary pb-2">
+        <span class="text-tertiary text-xs">E-MAIL</span>
         <div class="flex items-center">
-          <img class="mr-2 opacity-85 dark:opacity-70 w-5 h-5" src="mail.svg" alt="Email" />
-          <input
-            class="text-gray-700 dark:text-gray-200 dark:bg-gray-800 text-sm focus:outline-none w-full placeholder-gray-400 dark:placeholder-gray-500"
-            type="email"
-            placeholder="Seu e-mail cadastrado"
-            formControlName="email"
-          />
+          <img class="mr-2 opacity-85 w-5 h-5" src="mail.svg" alt="Email" />
+          <input class="input-themed text-sm focus:outline-none w-full border-0" type="email"
+            placeholder="Seu e-mail cadastrado" formControlName="email" />
         </div>
       </div>
 
       <!-- Campo Senha -->
-      <div class="flex flex-col gap-2 border-b border-gray-300 dark:border-gray-600 pb-2">
-        <span class="text-gray-600 dark:text-gray-400 text-xs">SENHA</span>
+      <div class="flex flex-col gap-2 border-b border-secondary pb-2">
+        <span class="text-tertiary text-xs">SENHA</span>
         <div class="flex items-center">
-          <img class="mr-2 opacity-85 dark:opacity-70 w-5 h-5" src="access.svg" alt="Senha" />
-          <input
-            class="text-gray-700 dark:text-gray-200 dark:bg-gray-800 text-sm focus:outline-none w-full placeholder-gray-400 dark:placeholder-gray-500"
-            type="password"
-            placeholder="Sua senha de acesso"
-            formControlName="password"
-          />
+          <img class="mr-2 opacity-85 w-5 h-5" src="access.svg" alt="Senha" />
+          <input class="input-themed text-sm focus:outline-none w-full border-0" type="password"
+            placeholder="Sua senha de acesso" formControlName="password" />
         </div>
       </div>
 
       <!-- Mensagem de Erro -->
       @if(loginErrorMessage) {
-        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-          <p class="font-semibold text-red-600 dark:text-red-400 text-sm">{{ loginErrorMessage }}</p>
-        </div>
+      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+        <p class="font-semibold text-red-600 dark:text-red-400 text-sm">{{ loginErrorMessage }}</p>
+      </div>
       }
     </div>
 
     <!-- Botão de Login -->
-    <div
-      [class]="'flex justify-between items-center mt-auto p-3 md:p-4 rounded-xl transition-all ' +
-        (userForm.invalid ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed' : 'cursor-pointer bg-[#F24D0D] hover:bg-[#d64309] active:translate-y-1')"
-      (click)="login()"
-    >
+    <button type="button" [disabled]="userForm.invalid"
+      [class]="userForm.invalid ? 'btn-disabled flex justify-between items-center mt-auto p-3 md:p-4 rounded-xl transition-all' : 'btn-primary flex justify-between items-center mt-auto p-3 md:p-4 rounded-xl transition-all cursor-pointer active:translate-y-1'"
+      (click)="login()">
       <span class="text-white text-sm md:text-base font-medium">Acessar</span>
       <img class="w-4 h-4" src="right-arrow.svg" alt="Arrow" />
-    </div>
+    </button>
   </div>
 </div>
