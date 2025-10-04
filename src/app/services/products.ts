@@ -24,7 +24,7 @@ export class ProductsService {
   saveProduct(product: INewProductRequest): Observable<INewProductResponse> {
     const productData = {
       ...product,
-      status: 'anunciado',
+      status: 'Disponível',
       createdAt: Timestamp.now()
     };
 
@@ -38,7 +38,7 @@ export class ProductsService {
             price: product.price,
             description: product.description,
             category: product.category,
-            status: 'anunciado',
+            status: 'Disponível',
             imageMain: product.imageMain
           }]
         };
@@ -59,7 +59,7 @@ export class ProductsService {
             price: data['price'],
             description: data['description'],
             category: data['category'],
-            status: data['status'] || 'anunciado',
+            status: data['status'] || 'Disponível',
             imageMain: data['imageMain']
           };
         });

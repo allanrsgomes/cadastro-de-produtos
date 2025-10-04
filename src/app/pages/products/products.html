@@ -32,8 +32,7 @@
             formControlName="status"
           >
             <option value="" disabled selected hidden>Status</option>
-            <option value="Anunciado">Anunciado</option>
-            <option value="Vendido">Vendido</option>
+            <option value="Disponível">Disponível</option>
             <option value="Desativado">Desativado</option>
           </select>
 
@@ -58,7 +57,7 @@
 
       <!-- Grid de Produtos -->
       <div class="flex-1 w-full">
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
 
           @for(product of filteredProducts; track product.id) {
             <div class="card-themed rounded-2xl p-2 flex flex-col cursor-pointer transition-all duration-200">
@@ -75,9 +74,8 @@
                 <!-- Badges -->
                 <div class="flex justify-center gap-1 absolute top-3 right-3">
                 <span class="p-2 rounded-2xl text-xs text-white" [class]="{
-                    'bg-[#0095E5]': product.status === 'anunciado',
-                    'bg-[#28A745]': product.status === 'vendido',
-                    'bg-[#666]': product.status === 'desativado',
+                    'bg-[#28A745]': product.status === 'Disponível',
+                    'bg-[#d64309]': product.status === 'Desativado',
                   }">{{product.status.toUpperCase() }}
                 </span>
                   <span class="bg-[#3D3D3D]/90 backdrop-blur-sm p-2 rounded-xl text-xs text-white font-medium">
@@ -88,7 +86,7 @@
 
               <!-- Informações do Produto -->
               <div class="flex justify-between items-start p-3 gap-2">
-                <h3 class="font-bold text-secondary text-sm md:text-base line-clamp-1">{{ product.title }}</h3>
+                <h3 class="font-bold text-secondary text-sm md:text-base line-clamp-2">{{ product.title }}</h3>
                 <h3 class="font-bold text-primary text-sm md:text-base whitespace-nowrap">
                   <span class="text-xs font-medium">R$</span> {{ product.price }}
                 </h3>
@@ -96,7 +94,7 @@
 
               <!-- Descrição -->
               <div class="px-3 pb-3">
-                <p class="text-tertiary text-xs md:text-sm line-clamp-2">{{ product.description }}</p>
+                <p class="text-tertiary text-xs md:text-sm line-clamp-3">{{ product.description }}</p>
               </div>
             </div>
           }
