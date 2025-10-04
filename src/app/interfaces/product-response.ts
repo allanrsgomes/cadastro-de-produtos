@@ -5,5 +5,6 @@ export interface IProductResponse {
   description: string;
   category: string;
   status: string;
-  imageBase64: string;
+  imageMain: string;
+  images?: string[];
 }

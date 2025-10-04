@@ -1,22 +1,29 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductsService } from '../../services/products';
 import { StorageService } from '../../services/storage';
-import { INewProductRequest } from '../../interfaces/new-product-request';
-import { switchMap, take } from 'rxjs';
+import { ImageService } from '../../services/image';
+import { INewProductRequest, ImagePreview } from '../../interfaces/new-product-request';
+import { forkJoin, switchMap, take } from 'rxjs';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-new-product',
-  imports: [ReactiveFormsModule],
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './new-product.html',
   styleUrl: './new-product.css'
 })
 export class NewProduct {
-  successMessage = '';
-  productImageBase64 = '';
-  selectedFile: File | null = null;
-  isLoading = false;
+  successMessage = signal('');
+  errorMessage = signal('');
+  images = signal<ImagePreview[]>([]);
+  isLoading = signal(false);
+  uploadProgress = signal(0);
+  isDragging = signal(false);
+
+  maxImages = 5;
 
   productForm = new FormGroup({
     title: new FormControl('', [Validators.required]),
@@ -27,94 +34,137 @@ export class NewProduct {
 
   private readonly _productsService = inject(ProductsService);
   private readonly _storageService = inject(StorageService);
+  private readonly _imageService = inject(ImageService);
   private readonly _router = inject(Router);
 
-  saveProduct() {
-    if (this.productForm.invalid || !this.selectedFile) return;
+  async saveProduct() {
+    if (this.productForm.invalid || this.images().length === 0) return;
 
-    this.isLoading = true;
-    this.successMessage = '';
+    this.isLoading.set(true);
+    this.successMessage.set('');
+    this.errorMessage.set('');
+    this.uploadProgress.set(0);
 
-    const imagePath = this._storageService.generateImagePath(this.selectedFile.name);
+    try {
+      // Otimizar todas as imagens
+      const optimizedImages = await Promise.all(
+        this.images().map(img => this._imageService.optimizeImage(img.file))
+      );
 
-    this._storageService.uploadImage(this.selectedFile, imagePath)
-      .pipe(
+      // Upload de todas as imagens para o Storage
+      const uploadObservables = optimizedImages.map((file, index) => {
+        const path = this._storageService.generateImagePath(file.name);
+        return this._storageService.uploadImage(file, path);
+      });
+
+      // Aguardar todos os uploads
+      forkJoin(uploadObservables).pipe(
         take(1),
-        switchMap((imageUrl) => {
+        switchMap((imageUrls) => {
           const newProduct: INewProductRequest = {
             title: this.productForm.value.title as string,
             description: this.productForm.value.description as string,
             price: this.productForm.value.price as number,
             category: this.productForm.value.category as string,
-            imageBase64: imageUrl,
+            imageMain: imageUrls[0],
+            images: imageUrls
           };
 
           return this._productsService.saveProduct(newProduct);
         })
-      )
-      .subscribe({
+      ).subscribe({
         next: (response) => {
-          this.successMessage = response.message;
-          this.isLoading = false;
+          this.successMessage.set(response.message);
+          this.isLoading.set(false);
+          this.uploadProgress.set(100);
           this.resetForm();
-          this._router.navigate(['/products']);
+
+          setTimeout(() => {
+            this._router.navigate(['/products']);
+          }, 1500);
         },
         error: (error) => {
           console.error('Erro ao salvar produto:', error);
-          this.successMessage = 'Erro ao salvar produto';
-          this.isLoading = false;
+          this.errorMessage.set('Erro ao salvar produto. Tente novamente.');
+          this.isLoading.set(false);
         }
       });
-  }
-
-  saveProductWithBase64() {
-    if (this.productForm.invalid || !this.productImageBase64) return;
-
-    this.isLoading = true;
-
-    const newProduct: INewProductRequest = {
-      title: this.productForm.value.title as string,
-      description: this.productForm.value.description as string,
-      price: this.productForm.value.price as number,
-      category: this.productForm.value.category as string,
-      imageBase64: this.productImageBase64,
-    };
-
-    this._productsService.saveProduct(newProduct).pipe(take(1)).subscribe({
-      next: (response) => {
-        this.successMessage = response.message;
-        this.isLoading = false;
-        this.resetForm();
-        this._router.navigate(['/products']);
-      },
-      error: (error) => {
-        console.error('Erro ao salvar produto:', error);
-        this.isLoading = false;
-      }
-    });
-  }
-
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      this.selectedFile = file;
-      this.convertFileToBase64(file);
+    } catch (error) {
+      console.error('Erro ao processar imagens:', error);
+      this.errorMessage.set('Erro ao processar imagens');
+      this.isLoading.set(false);
     }
   }
 
-  convertFileToBase64(file: File) {
-    const reader = new FileReader();
+  async onFilesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      await this.processFiles(Array.from(input.files));
+    }
+  }
 
-    reader.onload = (e: any) => {
-      this.productImageBase64 = e.target.result as string;
-    };
-    reader.onerror = () => {
-      this.productImageBase64 = '';
-    };
+  async processFiles(files: File[]) {
+    const currentImages = this.images();
+    const remainingSlots = this.maxImages - currentImages.length;
 
-    reader.readAsDataURL(file);
+    if (remainingSlots <= 0) {
+      this.errorMessage.set(`Máximo de ${this.maxImages} imagens permitidas`);
+      return;
+    }
+
+    const filesToProcess = files.slice(0, remainingSlots);
+
+    for (const file of filesToProcess) {
+      // Validar arquivo
+      const validation = this._imageService.validateImageFile(file);
+      if (!validation.valid) {
+        this.errorMessage.set(validation.error || 'Arquivo inválido');
+        continue;
+      }
+
+      // Criar preview
+      try {
+        const preview = await this._imageService.fileToBase64(file);
+        const newImage: ImagePreview = {
+          file,
+          preview,
+          index: currentImages.length
+        };
+
+        this.images.update(imgs => [...imgs, newImage]);
+        this.errorMessage.set('');
+      } catch (error) {
+        console.error('Erro ao processar arquivo:', error);
+      }
+    }
+  }
+
+  removeImage(index: number) {
+    this.images.update(imgs => imgs.filter(img => img.index !== index));
+  }
+
+  // Drag & Drop handlers
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+
+  async onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      await this.processFiles(Array.from(files));
+    }
   }
 
   cancel() {
@@ -123,7 +173,7 @@ export class NewProduct {
 
   resetForm() {
     this.productForm.reset();
-    this.productImageBase64 = '';
-    this.selectedFile = null;
+    this.images.set([]);
+    this.uploadProgress.set(0);
   }
 }

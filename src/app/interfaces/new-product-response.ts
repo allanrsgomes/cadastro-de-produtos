@@ -7,6 +7,6 @@ export interface INewProductResponse {
     description: string;
     category: string;
     status: string;
-    imageBase64: string;
+    imageMain: string;
   }[];
 }

@@ -39,7 +39,7 @@ export class ProductsService {
             description: product.description,
             category: product.category,
             status: 'anunciado',
-            imageBase64: product.imageBase64
+            imageMain: product.imageMain
           }]
         };
       })
@@ -60,7 +60,7 @@ export class ProductsService {
             description: data['description'],
             category: data['category'],
             status: data['status'] || 'anunciado',
-            imageBase64: data['imageBase64']
+            imageMain: data['imageMain']
           };
         });
 

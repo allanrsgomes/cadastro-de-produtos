@@ -3,5 +3,12 @@ export interface INewProductRequest {
   price: number;
   description: string;
   category: string;
-  imageBase64: string;
+  imageMain: string;
+  images?: string[];
+}
+
+export interface ImagePreview {
+  file: File;
+  preview: string;
+  index: number;
 }
