@@ -48,6 +48,10 @@ export class Products implements OnInit {
     this.filteredProducts = this.products;
   }
 
+  newProduct() {
+    this._router.navigate(['/new-product']);
+  }
+
   editProduct(productId: string) {
     this._router.navigate(['/edit-product', productId]);
   }
