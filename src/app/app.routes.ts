@@ -4,6 +4,7 @@ import { Products } from './pages/products/products';
 import { Layout } from './pages/layout/layout';
 import { NewProduct } from './pages/new-product/new-product';
 import { authGuard } from './guards/auth-guard';
+import { EditProduct } from './pages/edit-product/edit-product';
 
 export const routes: Routes = [
   {
@@ -27,6 +28,10 @@ export const routes: Routes = [
       {
         path: 'new-product',
         component: NewProduct,
+      },
+      {
+        path: 'edit-product/:id',
+        component: EditProduct,
       }
     ],
   },

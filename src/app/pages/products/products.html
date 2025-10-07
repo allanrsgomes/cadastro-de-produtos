@@ -4,7 +4,8 @@
     <!-- Cabeçalho -->
     <div class="mb-2">
       <h2 class="font-bold text-xl md:text-2xl text-primary">Seus produtos</h2>
-      <h4 class="font-light text-xs md:text-sm text-tertiary mt-1">Acesse e gerencie a sua lista de produtos à venda</h4>
+      <h4 class="font-light text-xs md:text-sm text-tertiary mt-1">Acesse e gerencie a sua lista de produtos à venda
+      </h4>
     </div>
 
     <div class="w-full flex flex-col lg:flex-row gap-4 items-start">
@@ -18,19 +19,13 @@
           <!-- Busca -->
           <div class="flex border-b border-secondary pb-2">
             <img class="mr-2 opacity-85 w-5 h-5" src="search.svg" alt="Buscar" />
-            <input
-              class="input-themed text-sm focus:outline-none w-full border-0"
-              type="text"
-              placeholder="Pesquisar"
-              formControlName="title"
-            />
+            <input class="input-themed text-sm focus:outline-none w-full border-0" type="text" placeholder="Pesquisar"
+              formControlName="title" />
           </div>
 
           <!-- Status -->
-          <select
-            class="w-full input-themed border-b border-secondary py-2 text-sm focus:outline-none cursor-pointer"
-            formControlName="status"
-          >
+          <select class="w-full input-themed border-b border-secondary py-2 text-sm focus:outline-none cursor-pointer"
+            formControlName="status">
             <option value="" disabled selected hidden>Status</option>
             <option value="Disponível">Disponível</option>
             <option value="Desativado">Desativado</option>
@@ -40,15 +35,13 @@
           <div class="flex flex-col gap-2">
             <button
               class="btn-primary w-full p-3 rounded-lg text-white text-sm font-medium cursor-pointer active:translate-y-1 duration-200 ease-in-out transition"
-              (click)="filterProducts()"
-            >
+              (click)="filterProducts()">
               Aplicar filtro
             </button>
 
             <button
               class="w-full p-3 rounded-lg bg-[#6aa3ff] text-white text-sm font-medium cursor-pointer hover:bg-[#5a93ef] active:translate-y-1 duration-200 ease-in-out transition"
-              (click)="clearFilter()"
-            >
+              (click)="clearFilter()">
               Limpar filtro
             </button>
           </div>
@@ -60,24 +53,22 @@
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
 
           @for(product of filteredProducts; track product.id) {
-            <div class="card-themed rounded-2xl p-2 flex flex-col cursor-pointer transition-all duration-200">
+          <div class="card-themed rounded-2xl p-2 flex flex-col cursor-pointer transition-all duration-200">
+
+            <div class="product-card" (click)="editProduct(product.id)">
 
               <!-- Imagem do Produto -->
               <div class="h-40 sm:h-48 relative rounded-xl overflow-hidden">
-                <img
-                  class="w-full h-full object-cover"
-                  [src]="product.imageMain"
-                  [alt]="product.title"
-                  loading="lazy"
-                />
+                <img class="w-full h-full object-cover" [src]="product.imageMain" [alt]="product.title"
+                  loading="lazy" />
 
                 <!-- Badges -->
                 <div class="flex justify-center gap-1 absolute top-3 right-3">
-                <span class="p-2 rounded-2xl text-xs text-white" [class]="{
+                  <span class="p-2 rounded-2xl text-xs text-white" [class]="{
                     'bg-[#28A745]': product.status === 'Disponível',
                     'bg-[#d64309]': product.status === 'Desativado',
                   }">{{product.status.toUpperCase() }}
-                </span>
+                  </span>
                   <span class="bg-[#3D3D3D]/90 backdrop-blur-sm p-2 rounded-xl text-xs text-white font-medium">
                     {{ product.category.toUpperCase() }}
                   </span>
@@ -97,26 +88,24 @@
                 <p class="text-tertiary text-xs md:text-sm line-clamp-3">{{ product.description }}</p>
               </div>
             </div>
+          </div>
           }
 
           @empty {
-            <div class="col-span-full card-themed rounded-2xl p-8 md:p-12 text-center transition-colors">
-              <div class="flex flex-col items-center gap-3">
-                <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-tertiary flex items-center justify-center">
-                  <img class="w-8 h-8 md:w-10 md:h-10 opacity-50" src="package.svg" alt="Sem produtos" />
-                </div>
-                <div>
-                  <p class="font-bold text-primary text-base md:text-lg">Nenhum item encontrado</p>
-                  <p class="text-tertiary text-sm mt-1">Cadastre seu primeiro produto!</p>
-                </div>
-                <button
-                  class="btn-primary mt-4 px-6 py-3 rounded-lg transition"
-                  routerLink="/new-product"
-                >
-                  Cadastrar produto
-                </button>
+          <div class="col-span-full card-themed rounded-2xl p-8 md:p-12 text-center transition-colors">
+            <div class="flex flex-col items-center gap-3">
+              <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-tertiary flex items-center justify-center">
+                <img class="w-8 h-8 md:w-10 md:h-10 opacity-50" src="package.svg" alt="Sem produtos" />
               </div>
+              <div>
+                <p class="font-bold text-primary text-base md:text-lg">Nenhum item encontrado</p>
+                <p class="text-tertiary text-sm mt-1">Cadastre seu primeiro produto!</p>
+              </div>
+              <button class="btn-primary mt-4 px-6 py-3 rounded-lg transition" routerLink="/new-product">
+                Cadastrar produto
+              </button>
             </div>
+          </div>
           }
         </div>
       </div>
