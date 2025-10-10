@@ -1,8 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductsService } from '../../services/products';
 import { StorageService } from '../../services/storage';
 import { ImageService } from '../../services/image';
+import { CategoriesService } from '../../services/categories';
+import { GendersService } from '../../services/genders';
+import { IGender } from '../../interfaces/gender';
+import { ICategory } from '../../interfaces/category';
 import { INewProductRequest, ImagePreview } from '../../interfaces/new-product-request';
 import { forkJoin, switchMap, take } from 'rxjs';
 import { Router } from '@angular/router';
@@ -15,10 +19,12 @@ import { CommonModule } from '@angular/common';
   templateUrl: './new-product.html',
   styleUrl: './new-product.css'
 })
-export class NewProduct {
+export class NewProduct implements OnInit {
   successMessage = signal('');
   errorMessage = signal('');
   images = signal<ImagePreview[]>([]);
+  categories: ICategory[] = [];
+  genders: IGender[] = [];
   isLoading = signal(false);
   uploadProgress = signal(0);
   isDragging = signal(false);
@@ -30,12 +36,31 @@ export class NewProduct {
     price: new FormControl(0, [Validators.required]),
     description: new FormControl('', [Validators.required]),
     category: new FormControl('', [Validators.required]),
+    gender: new FormControl('', [Validators.required]),
+    status: new FormControl('Disponível', [Validators.required]),
   });
 
   private readonly _productsService = inject(ProductsService);
   private readonly _storageService = inject(StorageService);
   private readonly _imageService = inject(ImageService);
+  private readonly _categoriesService = inject(CategoriesService);
+  private readonly _gendersService = inject(GendersService);
   private readonly _router = inject(Router);
+
+  ngOnInit() {
+    forkJoin({
+      categories: this._categoriesService.getCategories(),
+      genders: this._gendersService.getGenders()
+    }).pipe(take(1)).subscribe({
+      next: (response) => {
+        this.categories = response.categories;
+        this.genders = response.genders;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar dados:', error);
+      }
+    });
+  }
 
   async saveProduct() {
     if (this.productForm.invalid || this.images().length === 0) return;
@@ -66,6 +91,7 @@ export class NewProduct {
             description: this.productForm.value.description as string,
             price: this.productForm.value.price as number,
             category: this.productForm.value.category as string,
+            gender: this.productForm.value.gender as string,
             imageMain: imageUrls[0],
             images: imageUrls
           };
@@ -172,7 +198,14 @@ export class NewProduct {
   }
 
   resetForm() {
-    this.productForm.reset();
+    this.productForm.reset({
+      title: '',
+      price: 0,
+      description: '',
+      category: '',
+      gender: '',
+      status: 'Disponível'
+    });
     this.images.set([]);
     this.uploadProgress.set(0);
   }

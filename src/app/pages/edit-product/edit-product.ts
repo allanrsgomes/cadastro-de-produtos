@@ -4,6 +4,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductsService } from '../../services/products';
 import { StorageService } from '../../services/storage';
 import { ImageService } from '../../services/image';
+import { CategoriesService } from '../../services/categories';
+import { GendersService } from '../../services/genders';
+import { ICategory } from '../../interfaces/category';
+import { IGender } from '../../interfaces/gender';
 import { INewProductRequest } from '../../interfaces/new-product-request';
 import { IProductResponse } from '../../interfaces/product-response';
 import { IImagePreview } from '../../interfaces/image-preview.response';
@@ -23,6 +27,9 @@ export class EditProduct implements OnInit {
   successMessage = signal('');
   errorMessage = signal('');
   images = signal<IImagePreview[]>([]);
+  categories: ICategory[] = [];
+  genders: IGender[] = [];
+  isLoadingPage = true;
   isLoading = signal(false);
   isDeleting = signal(false);
   uploadProgress = signal(0);
@@ -34,6 +41,8 @@ export class EditProduct implements OnInit {
     price: new FormControl(0, [Validators.required]),
     description: new FormControl('', [Validators.required]),
     category: new FormControl('', [Validators.required]),
+    gender: new FormControl('', [Validators.required]),
+    status: new FormControl('', [Validators.required]),
   });
 
   private readonly _route = inject(ActivatedRoute);
@@ -41,61 +50,64 @@ export class EditProduct implements OnInit {
   private readonly _productsService = inject(ProductsService);
   private readonly _storageService = inject(StorageService);
   private readonly _imageService = inject(ImageService);
+  private readonly _categoriesService = inject(CategoriesService);
+  private readonly _gendersService = inject(GendersService);
 
   ngOnInit() {
     this.productId = this._route.snapshot.params['id'];
-    this.loadProduct();
+    this.loadInitialData();
   }
 
-  loadProduct() {
-    this.isLoading.set(true);
+  loadInitialData() {
+    this.isLoadingPage = true;
 
-    this._productsService.getProductById(this.productId).pipe(take(1)).subscribe({
-      next: (product) => {
+    forkJoin({
+      product: this._productsService.getProductById(this.productId),
+      categories: this._categoriesService.getCategories(),
+      genders: this._gendersService.getGenders()
+    }).pipe(take(1)).subscribe({
+      next: (response) => {
+        const { product, categories, genders } = response;
+
         this.product.set(product);
+        this.categories = categories;
+        this.genders = genders;
 
+        // Preenche o formulário com os dados do produto
         this.productForm.patchValue({
           title: product.title,
           price: product.price,
           description: product.description,
-          category: product.category
+          category: product.category,
+          gender: product.gender,
+          status: product.status
         });
 
-        const existingImages: IImagePreview[] = [];
-
-        if (product.images && product.images.length > 0) {
-          product.images.forEach((url, index) => {
-            existingImages.push({
-              preview: url,
-              index,
-              isExisting: true,
-              url
-            });
-          });
-        } else if (product.imageMain) {
-          existingImages.push({
-            preview: product.imageMain,
-            index: 0,
+        // Prepara as imagens existentes para exibição
+        const existingImages: IImagePreview[] = (product.images || [product.imageMain])
+          .filter(url => !!url)
+          .map((url, index) => ({
+            preview: url,
+            index,
             isExisting: true,
-            url: product.imageMain
-          });
-        }
+            url
+          }));
 
         this.images.set(existingImages);
-        this.isLoading.set(false);
+        this.isLoadingPage = false;
       },
       error: (error) => {
-        console.error('Erro ao carregar produto:', error);
-        this.errorMessage.set('Erro ao carregar produto');
-        this.isLoading.set(false);
-
-        setTimeout(() => {
-          this._router.navigate(['/products']);
-        }, 2000);
+        console.error('Erro ao carregar dados da página:', error);
+        this.errorMessage.set('Erro ao carregar os dados do produto.');
+        this.isLoadingPage = false;
+        setTimeout(() => this._router.navigate(['/products']), 2000);
       }
     });
   }
 
+  /**
+   * Atualiza o produto com os novos dados do formulário e imagens.
+   */
   async updateProduct() {
     if (this.productForm.invalid || this.images().length === 0) return;
 
@@ -106,31 +118,31 @@ export class EditProduct implements OnInit {
 
     try {
       const currentImages = this.images();
-      const newImages = currentImages.filter(img => !img.isExisting && img.file);
+      const newImageFiles = currentImages.filter(img => !img.isExisting && img.file).map(img => img.file!);
       const existingImageUrls = currentImages.filter(img => img.isExisting).map(img => img.url!);
 
       let newImageUrls: string[] = [];
 
-      if (newImages.length > 0) {
+      if (newImageFiles.length > 0) {
         const optimizedImages = await Promise.all(
-          newImages.map(img => this._imageService.optimizeImage(img.file!))
+          newImageFiles.map(file => this._imageService.optimizeImage(file))
         );
-
-        const uploadObservables = optimizedImages.map((file) => {
+        const uploadObservables = optimizedImages.map(file => {
           const path = this._storageService.generateImagePath(file.name);
           return this._storageService.uploadImage(file, path);
         });
-
         newImageUrls = await forkJoin(uploadObservables).pipe(take(1)).toPromise() || [];
       }
 
       const allImageUrls = [...existingImageUrls, ...newImageUrls];
 
-      const updatedProduct: Partial<INewProductRequest> = {
+      const updatedProduct: Partial<IProductResponse> = {
         title: this.productForm.value.title as string,
         description: this.productForm.value.description as string,
         price: this.productForm.value.price as number,
         category: this.productForm.value.category as string,
+        gender: this.productForm.value.gender as string, // Adicionado
+        status: this.productForm.value.status as string, // Adicionado
         imageMain: allImageUrls[0],
         images: allImageUrls
       };
@@ -140,10 +152,7 @@ export class EditProduct implements OnInit {
           this.successMessage.set('Produto atualizado com sucesso!');
           this.isLoading.set(false);
           this.uploadProgress.set(100);
-
-          setTimeout(() => {
-            this._router.navigate(['/products']);
-          }, 1500);
+          setTimeout(() => this._router.navigate(['/products']), 1500);
         },
         error: (error) => {
           console.error('Erro ao atualizar produto:', error);
@@ -151,6 +160,7 @@ export class EditProduct implements OnInit {
           this.isLoading.set(false);
         }
       });
+
     } catch (error) {
       console.error('Erro ao processar imagens:', error);
       this.errorMessage.set('Erro ao processar imagens');
@@ -159,21 +169,14 @@ export class EditProduct implements OnInit {
   }
 
   deleteProduct() {
-    const confirm = window.confirm(
-      `Tem certeza que deseja excluir "${this.product()?.title}"?\n\nEsta ação não pode ser desfeita.`
-    );
-
-    if (!confirm) return;
+    const confirmDelete = window.confirm(`Tem certeza que deseja excluir "${this.product()?.title}"?\n\nEsta ação não pode ser desfeita.`);
+    if (!confirmDelete) return;
 
     this.isDeleting.set(true);
-
     this._productsService.deleteProduct(this.productId).pipe(take(1)).subscribe({
       next: () => {
         this.successMessage.set('Produto excluído com sucesso!');
-
-        setTimeout(() => {
-          this._router.navigate(['/products']);
-        }, 1000);
+        setTimeout(() => this._router.navigate(['/products']), 1000);
       },
       error: (error) => {
         console.error('Erro ao excluir produto:', error);
@@ -185,7 +188,7 @@ export class EditProduct implements OnInit {
 
   async onFilesSelected(event: Event) {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
+    if (input.files) {
       await this.processFiles(Array.from(input.files));
     }
   }
@@ -193,30 +196,21 @@ export class EditProduct implements OnInit {
   async processFiles(files: File[]) {
     const currentImages = this.images();
     const remainingSlots = this.maxImages - currentImages.length;
-
     if (remainingSlots <= 0) {
       this.errorMessage.set(`Máximo de ${this.maxImages} imagens permitidas`);
       return;
     }
 
     const filesToProcess = files.slice(0, remainingSlots);
-
     for (const file of filesToProcess) {
       const validation = this._imageService.validateImageFile(file);
       if (!validation.valid) {
         this.errorMessage.set(validation.error || 'Arquivo inválido');
         continue;
       }
-
       try {
         const preview = await this._imageService.fileToBase64(file);
-        const newImage: IImagePreview = {
-          file,
-          preview,
-          index: currentImages.length,
-          isExisting: false
-        };
-
+        const newImage: IImagePreview = { file, preview, index: currentImages.length, isExisting: false };
         this.images.update(imgs => [...imgs, newImage]);
         this.errorMessage.set('');
       } catch (error) {
@@ -225,10 +219,10 @@ export class EditProduct implements OnInit {
     }
   }
 
-  removeImage(index: number) {
+  removeImage(indexToRemove: number) {
     this.images.update(imgs => {
-      const filtered = imgs.filter(img => img.index !== index);
-      return filtered.map((img, i) => ({ ...img, index: i }));
+      const filtered = imgs.filter(img => img.index !== indexToRemove);
+      return filtered.map((img, i) => ({ ...img, index: i })); // Re-indexa para manter a consistência
     });
   }
 
@@ -248,10 +242,8 @@ export class EditProduct implements OnInit {
     event.preventDefault();
     event.stopPropagation();
     this.isDragging.set(false);
-
-    const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      await this.processFiles(Array.from(files));
+    if (event.dataTransfer?.files) {
+      await this.processFiles(Array.from(event.dataTransfer.files));
     }
   }
 

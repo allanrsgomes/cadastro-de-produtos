@@ -15,9 +15,9 @@
       <div class="w-full lg:w-64 card-themed rounded-2xl p-6 md:p-9 lg:sticky lg:top-20 transition-all">
         <div class="flex justify-between items-center mb-5">
           <h3 class="text-secondary font-bold text-base md:text-lg">Filtrar</h3>
-          <!-- Badge com número de filtros ativos -->
-          @if((filterForm.value.title || filterForm.value.status || filterForm.value.category) &&
-              (filterForm.value.title !== '' || filterForm.value.status !== '' || filterForm.value.category !== '')) {
+          <!-- Badge com filtros ativos -->
+          @if((filterForm.value.title || filterForm.value.status || filterForm.value.category || filterForm.value.gender) &&
+              (filterForm.value.title !== '' || filterForm.value.status !== '' || filterForm.value.category !== '' || filterForm.value.gender !== '')) {
             <span class="bg-[#F24D0D] text-white text-xs px-2 py-1 rounded-full">
               Ativo
             </span>
@@ -60,8 +60,22 @@
               formControlName="category"
             >
               <option value="">Todas</option>
-              @for(cat of categories; track cat) {
-                <option [value]="cat">{{ cat }}</option>
+              @for(cat of categories; track cat.id) {
+                <option [value]="cat.name">{{ cat.name }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Filtro por Gênero -->
+          <div class="flex flex-col gap-2">
+            <label class="text-tertiary text-xs font-medium">GÊNERO</label>
+            <select
+              class="input-themed py-2 text-sm focus:outline-none cursor-pointer"
+              formControlName="gender"
+            >
+              <option value="">Todos</option>
+              @for(gen of genders; track gen.id) {
+                <option [value]="gen.name">{{ gen.name }}</option>
               }
             </select>
           </div>
@@ -77,7 +91,7 @@
           </div>
 
           <!-- Botão Limpar Filtro -->
-          @if(filterForm.value.title || filterForm.value.status || filterForm.value.category) {
+          @if(filterForm.value.title || filterForm.value.status || filterForm.value.category || filterForm.value.gender) {
             <button
               class="w-full p-3 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium cursor-pointer active:translate-y-1 duration-200 ease-in-out transition"
               (click)="clearFilter()"
@@ -90,7 +104,7 @@
 
       <!-- Grid de Produtos -->
       <div class="flex-1 w-full">
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-4">
 
           @for(product of filteredProducts; track product.id) {
             <div class="card-themed rounded-2xl p-2 flex flex-col cursor-pointer transition-all duration-200 hover:scale-[1.02]">
@@ -107,13 +121,17 @@
                   />
 
                   <!-- Badges -->
-                  <div class="flex justify-center gap-1 absolute top-3 right-3">
+                  <div class="flex justify-center gap-1 absolute top-3 right-3 flex-wrap">
                     <span class="p-2 rounded-2xl text-xs text-white" [ngClass]="{
                       'bg-[#28A745]': product.status === 'Disponível',
                       'bg-[#d64309]': product.status === 'Desativado',
                     }">
                       {{ product.status.toUpperCase() }}
-                    </span>
+                    </span>                    @if(product.gender) {
+                      <span class="bg-blue-500 backdrop-blur-sm p-2 rounded-xl text-xs text-white font-medium">
+                        {{ product.gender.toUpperCase() }}
+                      </span>
+                    }
                     <span class="bg-[#3D3D3D]/90 backdrop-blur-sm p-2 rounded-xl text-xs text-white font-medium">
                       {{ product.category.toUpperCase() }}
                     </span>
@@ -147,7 +165,7 @@
                 <div>
                   <p class="font-bold text-primary text-base md:text-lg">Nenhum item encontrado</p>
                   <p class="text-tertiary text-sm mt-1">
-                    @if(filterForm.value.title || filterForm.value.status || filterForm.value.category) {
+                   @if(filterForm.value.title || filterForm.value.status || filterForm.value.category || filterForm.value.gender) {
                       Tente alterar seus filtros
                     } @else {
                       Cadastre seus produtos!

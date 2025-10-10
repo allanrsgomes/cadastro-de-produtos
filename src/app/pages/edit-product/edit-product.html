@@ -11,7 +11,7 @@
     <button
       type="button"
       [disabled]="isDeleting()"
-      class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors disabled:opacity-50"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer"
       (click)="deleteProduct()"
     >
       @if(isDeleting()) {
@@ -30,7 +30,7 @@
   </div>
 
   <!-- Loading inicial -->
-  @if(isLoading() && !product()) {
+  @if(isLoadingPage) {
     <div class="flex justify-center items-center py-20">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F24D0D]"></div>
     </div>
@@ -84,7 +84,7 @@
               <div class="relative group">
                 <img
                   [src]="image.preview"
-                  class="w-full object-cover rounded-xl"
+                  class="w-full h-62 object-cover rounded-xl"
                   [alt]="'Preview ' + image.index"
                 />
                 <!-- Botão Remover -->
@@ -172,20 +172,47 @@
             ></textarea>
           </div>
 
-          <!-- Categoria -->
-          <div class="flex flex-col gap-2 border-b border-secondary pb-2">
-            <span class="text-tertiary text-xs font-medium">CATEGORIA</span>
-            <select
-              class="input-themed text-sm focus:outline-none cursor-pointer border-0"
-              formControlName="category"
-            >
-              <option value="" disabled>Selecione</option>
-              <option value="Móvel">Móvel</option>
-              <option value="Papelaria">Papelaria</option>
-              <option value="Saúde & Beleza">Saúde & Beleza</option>
-              <option value="Utensílio">Utensílio</option>
-              <option value="Vestuário">Vestuário</option>
-            </select>
+          <!-- Categoria, Gênero e Status -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <!-- Categoria -->
+            <div class="flex flex-col gap-2 border-b border-secondary pb-2">
+              <span class="text-tertiary text-xs font-medium">CATEGORIA</span>
+              <select
+                class="input-themed text-sm focus:outline-none cursor-pointer border-0"
+                formControlName="category"
+              >
+                <option value="" disabled>Selecione</option>
+                @for(cat of categories; track cat.id) {
+                  <option [value]="cat.name">{{ cat.name }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Gênero -->
+            <div class="flex flex-col gap-2 border-b border-secondary pb-2">
+              <span class="text-tertiary text-xs font-medium">GÊNERO</span>
+              <select
+                class="input-themed text-sm focus:outline-none cursor-pointer border-0"
+                formControlName="gender"
+              >
+                <option value="" disabled>Selecione</option>
+                @for(gen of genders; track gen.id) {
+                  <option [value]="gen.name">{{ gen.name }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Status -->
+            <div class="flex flex-col gap-2 border-b border-secondary pb-2">
+              <span class="text-tertiary text-xs font-medium">STATUS</span>
+              <select
+                class="input-themed text-sm focus:outline-none cursor-pointer border-0"
+                formControlName="status"
+              >
+                <option value="Disponível">Disponível</option>
+                <option value="Desativado">Desativado</option>
+              </select>
+            </div>
           </div>
 
           <!-- Botões -->
