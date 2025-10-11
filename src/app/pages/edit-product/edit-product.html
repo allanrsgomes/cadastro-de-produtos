@@ -173,7 +173,7 @@
           </div>
 
           <!-- Categoria, Gênero e Status -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- Categoria -->
             <div class="flex flex-col gap-2 border-b border-secondary pb-2">
               <span class="text-tertiary text-xs font-medium">CATEGORIA</span>
@@ -184,20 +184,6 @@
                 <option value="" disabled>Selecione</option>
                 @for(cat of categories; track cat.id) {
                   <option [value]="cat.name">{{ cat.name }}</option>
-                }
-              </select>
-            </div>
-
-            <!-- Gênero -->
-            <div class="flex flex-col gap-2 border-b border-secondary pb-2">
-              <span class="text-tertiary text-xs font-medium">GÊNERO</span>
-              <select
-                class="input-themed text-sm focus:outline-none cursor-pointer border-0"
-                formControlName="gender"
-              >
-                <option value="" disabled>Selecione</option>
-                @for(gen of genders; track gen.id) {
-                  <option [value]="gen.name">{{ gen.name }}</option>
                 }
               </select>
             </div>

@@ -5,10 +5,7 @@ import { ProductsService } from '../../services/products';
 import { StorageService } from '../../services/storage';
 import { ImageService } from '../../services/image';
 import { CategoriesService } from '../../services/categories';
-import { GendersService } from '../../services/genders';
 import { ICategory } from '../../interfaces/category';
-import { IGender } from '../../interfaces/gender';
-import { INewProductRequest } from '../../interfaces/new-product-request';
 import { IProductResponse } from '../../interfaces/product-response';
 import { IImagePreview } from '../../interfaces/image-preview.response';
 import { forkJoin, take } from 'rxjs';
@@ -28,7 +25,6 @@ export class EditProduct implements OnInit {
   errorMessage = signal('');
   images = signal<IImagePreview[]>([]);
   categories: ICategory[] = [];
-  genders: IGender[] = [];
   isLoadingPage = true;
   isLoading = signal(false);
   isDeleting = signal(false);
@@ -41,7 +37,6 @@ export class EditProduct implements OnInit {
     price: new FormControl(0, [Validators.required]),
     description: new FormControl('', [Validators.required]),
     category: new FormControl('', [Validators.required]),
-    gender: new FormControl('', [Validators.required]),
     status: new FormControl('', [Validators.required]),
   });
 
@@ -51,7 +46,6 @@ export class EditProduct implements OnInit {
   private readonly _storageService = inject(StorageService);
   private readonly _imageService = inject(ImageService);
   private readonly _categoriesService = inject(CategoriesService);
-  private readonly _gendersService = inject(GendersService);
 
   ngOnInit() {
     this.productId = this._route.snapshot.params['id'];
@@ -64,14 +58,12 @@ export class EditProduct implements OnInit {
     forkJoin({
       product: this._productsService.getProductById(this.productId),
       categories: this._categoriesService.getCategories(),
-      genders: this._gendersService.getGenders()
     }).pipe(take(1)).subscribe({
       next: (response) => {
-        const { product, categories, genders } = response;
+        const { product, categories } = response;
 
         this.product.set(product);
         this.categories = categories;
-        this.genders = genders;
 
         // Preenche o formulário com os dados do produto
         this.productForm.patchValue({
@@ -79,7 +71,6 @@ export class EditProduct implements OnInit {
           price: product.price,
           description: product.description,
           category: product.category,
-          gender: product.gender,
           status: product.status
         });
 
@@ -141,8 +132,7 @@ export class EditProduct implements OnInit {
         description: this.productForm.value.description as string,
         price: this.productForm.value.price as number,
         category: this.productForm.value.category as string,
-        gender: this.productForm.value.gender as string, // Adicionado
-        status: this.productForm.value.status as string, // Adicionado
+        status: this.productForm.value.status as string,
         imageMain: allImageUrls[0],
         images: allImageUrls
       };

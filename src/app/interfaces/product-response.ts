@@ -4,7 +4,6 @@ export interface IProductResponse {
   price: number;
   description: string;
   category: string;
-  gender?: string;
   status: string;
   imageMain: string;
   images?: string[];

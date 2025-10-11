@@ -3,7 +3,6 @@ export interface INewProductRequest {
   price: number;
   description: string;
   category: string;
-  gender?: string;
   imageMain: string;
   images?: string[];
 }
